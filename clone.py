@@ -2,26 +2,31 @@
 
 import argparse
 import os
-from github3 import login
+from github3 import *
 
 
 API_PASSWORD = ''
 API_USER = ''
 url = 'https://api.github.com/'
 org = None
-gh = login('', '')
+gh = None
 
 def setargs(args):
     global API_KEY
     global API_USER
     global gh
     global org
+    global url
     if args.password != None:
         API_KEY = args.password
     if args.username != None:
         API_USER = args.username
-    gh = login(API_USER, API_KEY)
-    if args.org != None:
+    if args.url is not  None:
+        url = args.url
+        gh = GitHubEnterprise(url, token=API_KEY)
+    else:
+        gh = login(API_USER, API_KEY)
+    if args.org is not None:
         org = gh.organization(args.org)
 
 def makeCloneFolder(args):
@@ -40,14 +45,12 @@ def getRepoList(directory, user, args):
     else:
         repos = org.repositories()
     for repo in repos:
-        x = repo.as_dict()["clone_url"]
-        cloneRepo(x, repo.name, directory)
+        cloneRepo(repo, directory)
 
-def cloneRepo(repo, project_name, directory):
-    auth = "https://" + API_USER + ':' + API_KEY + '@'
-    url = auth + repo.replace('"', '').split("https://")[1]
-    print("cloning ", project_name)
-    cloneCommand = "git clone --depth 1 " + url + " " + directory + "/" + project_name
+def cloneRepo(repo, directory):
+    url = repo.ssh_url
+    print("cloning ", repo.name)
+    cloneCommand = "git clone --depth 1 " + url + " " + directory + "/" + repo.name
     os.system(cloneCommand)
     
 def main(args):
@@ -61,6 +64,7 @@ parser = argparse.ArgumentParser(description='Clone all repos from a github user
 parser.add_argument('--password', help='The password of the github account')
 parser.add_argument('--username', help='The username of the github account')
 parser.add_argument('--org', help='Download all of the repos of a particular org')
+parser.add_argument('--url', help='The url to your version of github or GHE')
 args = parser.parse_args()
 print(args)
 main(args)
