@@ -50,7 +50,7 @@ def getRepoList(directory, user, args):
 def cloneRepo(repo, directory):
     url = repo.ssh_url
     print("cloning ", repo.name)
-    cloneCommand = "git clone --depth 1 " + url + " " + directory + "/" + repo.name
+    cloneCommand = "git clone " + url + " " + directory + "/" + repo.name
     os.system(cloneCommand)
     
 def main(args):
