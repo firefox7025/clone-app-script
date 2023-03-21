@@ -2,8 +2,8 @@
 
 import argparse
 import os
-from github3 import *
-
+import github3
+from github3 import GitHubEnterprise, login
 
 API_PASSWORD = ''
 API_USER = ''
